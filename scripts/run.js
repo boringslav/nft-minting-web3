@@ -16,6 +16,10 @@ const main = async () => {
      */
     await nftContract.deployed();
     console.log('Contract deployed to: ', nftContract.address);
+
+    const newNFT = await nftContract.createNFT();
+    //Wait for the NFT to be minted
+    await newNFT.wait();
 }
 
 
