@@ -6,17 +6,43 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 contract NFT is ERC721URIStorage {
-
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
+
+    string[] firstWords = ["Pancake", "Pizza", "Muffin", "Popcorn"];
+    string[] secondWords = ["Crocodile", "Iguana", "Lion", "Rat"];
+    string[] thirdWords = ["Bicycle", "Cabrio", "Tank", "Taxi"];
+
+
+    // This is our SVG code. All we need to change is the word that's displayed. Everything else stays the same.
+    // So, we make a baseSvg variable here that all our NFTs can use.
+    string baseSvg = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
+
 
     // We need to pass the name of our NFTs token and it's symbol.
     constructor() ERC721("SlavNFT", "SNFT"){
         console.log("First contract...");
     }
 
+    function pickRandomWord(string[] memory _wordArray, uint _tokenId, string memory _randomWord) public pure returns(string memory) {
+        uint rand = random(string(abi.encodePacked(_randomWord, Strings.toString(_tokenId))));
+        rand = rand % _wordArray.length;
+        return _wordArray[rand];
+
+    }
+
+    function random(string memory input) internal pure returns(uint) {
+        return uint(keccak256(abi.encodePacked(input)));
+    }
+
     function createNFT() public {
         uint newTokenId = _tokenIds.current();
+        string memory first = pickRandomWord(firstWords, newTokenId, "fiiiirst");
+        string memory second = pickRandomWord(secondWords, newTokenId, "secooond");
+        string memory third = pickRandomWord(thirdWords, newTokenId, "thhhiiird");
+
+        string memory finalSvg = string(abi.encodePacked(baseSvg,first,second,third,"</text></svg>"));
+        console.log('FinalSvg: ', finalSvg);
 
         _safeMint(msg.sender, newTokenId);
 
@@ -28,6 +54,8 @@ contract NFT is ERC721URIStorage {
         console.log("An NFT /w ID %s has been minted to %s", newTokenId ,msg.sender);
         _tokenIds.increment();
     }
+
+
 
 
 }
