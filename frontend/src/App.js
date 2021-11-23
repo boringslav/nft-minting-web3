@@ -1,10 +1,11 @@
 import { ethers } from "ethers";
 import { useState, useEffect } from "react";
+import Title from "./components/Title";
 import myNFT from './utils/NFT.json'; //get the abi file from artficts and add it to /utils dir
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
-  const CONTRACT_ADDRESS = "0x064a65144Dd209756346254FdB2eD6577d69dF97";
+  const CONTRACT_ADDRESS = "0x6A81056b297F46c10898144dB2A0CA01E4B454Bd";
   useEffect(() => {
     checkIfWalletIsConnected();
   }, []);
@@ -24,11 +25,37 @@ function App() {
     if (accounts.length !== 0) {
       const account = accounts[0];
       console.log("Found an authorized account:", account);
-      // setCurrentAccount(account)
+      setCurrentAccount(account);
+
+      // Setup listener! This is for the case where a user comes to our site
+      // and ALREADY had their wallet connected + authorized.
+      setupEventListener();
     } else {
       console.log("No authorized account found");
     }
   };
+  const setupEventListener = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, myNFT.abi, signer);
+
+        // This will essentially "capture" our event when our contract throws it.
+        connectedContract.on("NewNFTMinted", (from, tokenId) => {
+          console.log(from, tokenId.toNumber())
+          alert(`Hey there! We've minted your NFT and sent it to your wallet. It may be blank right now. It can take a max of 10 min to show up on OpenSea. Here's the link: https://rinkeby.rarible.com/token/${CONTRACT_ADDRESS}:${tokenId.toNumber()}`)
+        });
+
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const connectWallet = async () => {
     try {
@@ -90,12 +117,7 @@ function App() {
     <div class="h-screen w-screen bg-gray-700 overflow-y-auto">
       <div class="h-full flex flex-row justify-center  w-full">
         <div class="pt-4">
-          <p class="m-0 p-3 text-4xl font-bold text-pink-400">
-            My NFT Collection
-          </p>
-          <p class="px-2 text-xl text-white ">
-            Each unique. Each beautiful. Discover your NFT today.
-          </p>
+          <Title />
           {currentAccount === "" ? (
             renderNotConnectedContainer()
           ) : (

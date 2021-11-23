@@ -16,6 +16,8 @@ contract NFT is ERC721URIStorage {
     string[] secondWords = ["Crocodile", "Iguana", "Lion", "Rat"];
     string[] thirdWords = ["Bicycle", "Cabrio", "Tank", "Taxi"];
 
+    event NewNFTMinted(address sender, uint256 tokenId);
+
     // This is our SVG code. All we need to change is the word that's displayed. Everything else stays the same.
     // So, we make a baseSvg variable here that all our NFTs can use.
     string baseSvg =
@@ -42,7 +44,7 @@ contract NFT is ERC721URIStorage {
         return uint256(keccak256(abi.encodePacked(input)));
     }
 
-    function createNFT() public {
+    function createNFT() public checkNFTCount {
         uint256 newTokenId = _tokenIds.current();
         string memory first = pickRandomWord(
             firstWords,
@@ -101,5 +103,11 @@ contract NFT is ERC721URIStorage {
             msg.sender
         );
         _tokenIds.increment();
+        emit NewNFTMinted(msg.sender, newTokenId);
+    }
+
+    modifier checkNFTCount() {
+        require(_tokenIds.current() + 1 <= 5);
+        _;
     }
 }
