@@ -5,7 +5,12 @@ import myNFT from './utils/NFT.json'; //get the abi file from artficts and add i
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
-  const CONTRACT_ADDRESS = "0x6A81056b297F46c10898144dB2A0CA01E4B454Bd";
+  const [isLoading, setIsLoading] = useState(false);
+  const [nftText, setNftText] = useState("");
+  const [showRaribleUrl, setShowRaribleUrl] = useState(false);
+  const CONTRACT_ADDRESS = "0x8B216A7Aa2890d2CD86e7Aa7F7513e113Ca9b7f7";
+  const raribleUrl = `https://rinkeby.rarible.com/user/${CONTRACT_ADDRESS}?tab=owned`;
+
   useEffect(() => {
     checkIfWalletIsConnected();
   }, []);
@@ -45,8 +50,7 @@ function App() {
 
         // This will essentially "capture" our event when our contract throws it.
         connectedContract.on("NewNFTMinted", (from, tokenId) => {
-          console.log(from, tokenId.toNumber())
-          alert(`Hey there! We've minted your NFT and sent it to your wallet. It may be blank right now. It can take a max of 10 min to show up on OpenSea. Here's the link: https://rinkeby.rarible.com/token/${CONTRACT_ADDRESS}:${tokenId.toNumber()}`)
+          setNftText(`Hey there! We've minted your NFT ${tokenId} / 50 and sent it to your wallet. It may be blank right now. It can take a max of 10 min to show up on Rinkeby. Here's the link: https://rinkeby.rarible.com/token/${CONTRACT_ADDRESS}:${tokenId.toNumber()}`)
         });
 
       } else {
@@ -60,8 +64,11 @@ function App() {
   const connectWallet = async () => {
     try {
       const { ethereum } = window;
+      const rinkebyChainId = '0x4'
 
       if (!ethereum) alert("Get MetaMask!");
+
+
 
       // Request access to ethereum account
       const accounts = await ethereum.request({
@@ -70,14 +77,26 @@ function App() {
       accounts.at(0);
 
       console.log("Connected", accounts.at(0));
-
       setCurrentAccount(accounts.at(0));
+
+
+      let chainId = await ethereum.request({ method: 'eth_chainId' });
+      console.log("Connected to chain " + chainId);
+
+
+      if (chainId !== rinkebyChainId) {
+        alert("You are not connected to the Rinkeby Test Network!");
+      }
+
+
     } catch (err) {
       console.error(err);
     }
   };
 
   const askContractToMintNFT = async () => {
+    setIsLoading(true);
+    setNftText('');
     try {
       const { ethereum } = window;
       if (ethereum) {
@@ -97,11 +116,10 @@ function App() {
       } else {
         console.log("Ethereum object doesn't exist!");
       }
-
     } catch (err) {
       console.error(err);
     }
-
+    setIsLoading(false);
   }
 
   const renderNotConnectedContainer = () => (
@@ -112,6 +130,11 @@ function App() {
       Connect to Wallet
     </button>
   );
+
+  const openRarible = () => {
+    console.log(showRaribleUrl)
+    setShowRaribleUrl(!showRaribleUrl);
+  }
 
   return (
     <div class="h-screen w-screen bg-gray-700 overflow-y-auto">
@@ -128,6 +151,17 @@ function App() {
               Mint NFT
             </button>
           )}
+          {isLoading && (<p class="mt-5 font-bold text-white text-xxl">Mining...</p>)}
+          <p class="mt-5 font-bold text-white text-xxl">{nftText}</p>
+          <div>
+            <button
+              onClick={openRarible}
+              class="mt-5 p-3 border-2 border-pink-400 rounded-lg font-bold text-white text-xxl cursor-pointer"
+            >
+              🌊 View Collection
+            </button>
+            {showRaribleUrl && (<a class="p5 text-white text-xxl" target="_blank" href={raribleUrl}>{raribleUrl}</a>)}
+          </div>
         </div>
       </div>
     </div>

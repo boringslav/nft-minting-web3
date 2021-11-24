@@ -107,7 +107,7 @@ contract NFT is ERC721URIStorage {
     }
 
     modifier checkNFTCount() {
-        require(_tokenIds.current() + 1 <= 5);
+        require(_tokenIds.current() + 1 <= 50);
         _;
     }
 }
