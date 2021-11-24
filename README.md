@@ -14,12 +14,12 @@
 
 ### Commands for running the project:
 
-`***npm install***` (root directory)
+***`npm install`*** (root directory)
 
-`***npm install***` (frontend directory)
+***`npm install`*** (frontend directory)
 
-`***npm start***` (frontend directory)
+***`npm start`*** (frontend directory)
 
-`***npx hardhat run ./scripts/deploy.js***`  - compile and deploy the contract on Rinkeby test network (you need to copy the address from console and set the CONTRACT_ADDRESS variable in App.js + you need to copy the contract abi and paste it frontend/utils/NFT.json)
+***`npx hardhat run ./scripts/deploy.js`***  - compile and deploy the contract on Rinkeby test network (you need to copy the address from console and set the CONTRACT_ADDRESS variable in App.js + you need to copy the contract abi and paste it frontend/utils/NFT.json)
 
 ![https://tokens.buildspace.so/assets/CHbdfb992f-80ca-44a4-b7f7-54bb0365ff50-205/render.png](https://tokens.buildspace.so/assets/CHbdfb992f-80ca-44a4-b7f7-54bb0365ff50-205/render.png)
